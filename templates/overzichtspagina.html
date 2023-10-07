@@ -1,0 +1,142 @@
+{% extends "layout.html" %} {% block content %}
+<link rel="stylesheet" href="../static/style.css" />
+
+<!-- Modal to show the retrieved meetings -->
+<div
+  class="modal fade"
+  id="meetingModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="meetingModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="meetingModalLabel">Meetings</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row justify-content-center" id="meetings">
+          <div class="col">
+            <table id="student-table">
+              <thead>
+                <tr>
+                  <th>StudentID</th>
+                  <th>Naam</th>
+                  <th>MeetingID</th>
+                  <th>Present</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="col">
+            <table id="student-table2">
+              <thead>
+                <tr>
+                  <th>StudentID</th>
+                  <th>Naam</th>
+                  <th>Present</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h1>Overzicht</h1>
+<div id="all-meetings"></div>
+
+<script>
+  let intervalId;
+
+  $(document).ready(function () {
+    $.ajax({
+      url: "/meetingjson",
+      type: "GET",
+      success: function (data) {
+        var meetings = $("#all-meetings");
+        if (data.length === 0) {
+          var meetingText = $("<p>").text("Momenteel zijn er geen meetings.");
+          meetings.append(meetingText);
+        } else {
+          for (var i = 0; i < data.length; i++) {
+            var meeting = data[i];
+            var meetingId = meeting[0]; // capture the current subjectId in a local variable
+            var meetingButton = $("<button>")
+              .addClass("btn btn-primary m-2 col-md-3 meeting-button")
+              .text(meeting[1])
+              .attr("style", "background-color: #cd3b3b; border-color: #cd3b3b;")
+              .prop("id", meetingId);
+            meetings.append(meetingButton);
+          }
+        }
+      },
+      error: function (xhr, textStatus, errorThrown) {
+        console.log(xhr.status + ": " + xhr.responseText);
+      },
+    });
+
+    $(document).on("click", ".meeting-button", function () {
+      let meetingId = $(this).prop('id')
+      clearInterval(intervalId)
+
+      function updateTablePresent(data) {
+        $("#student-table tbody")
+          .empty()
+          .append(
+            data.map((student) =>
+              $("<tr>").append(
+                $("<td>").text(student[0]),
+                $("<td>").text(student[4] + " " + student[5]),
+                $("<td>").text(student[1]),
+                $("<td>").text(student[2] ? "Aanwezig" : "")
+              )
+            )
+          );
+      }
+
+      function updateTableNotPresent(data) {
+        $("#student-table2 tbody")
+          .empty()
+          .append(
+            data.map((student) =>
+              $("<tr>").append(
+                $("<td>").text(student[0]),
+                $("<td>").text(student[1] + " " + student[2]),
+                $("<td>").text("Afwezig")
+              )
+            )
+          );
+      }
+
+      $.getJSON("/students/"+meetingId, function (data) {
+        updateTablePresent(data);
+      });
+
+      $.getJSON("/studentsNotPresent/"+meetingId, function (data) {
+        updateTableNotPresent(data);
+      });
+
+      $('#meetingModal').modal('show');
+
+      intervalId = setInterval(() => {
+        $.getJSON("/students/"+meetingId, (data) => updateTablePresent(data));
+        $.getJSON("/studentsNotPresent/"+meetingId, (data) => updateTableNotPresent(data));
+      }, 5000);
+    });
+  });
+</script>
+{% endblock %}

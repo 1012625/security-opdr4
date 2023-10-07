@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="../static/style.css">
+  <h1>All Meetings</h1>
+  <table id="meeting-table">
+    <thead>
+        <tr>
+            <th>Meeting ID</th>
+            <th>Meeting date</th>
+            <th>Meeting start time</th>
+            <th>Meeting end time</th>
+            <th>Meeting subject</th>
+            <th>Locations</th>
+            <th>Classes</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+
+  <script>
+    $(document).ready(function() {
+    function updateTable(data) {
+      $('#meeting-table tbody').empty().append(
+        data.map(meeting => $('<tr>').append(
+          $('<td>').text(meeting[0]),
+          $('<td>').text(meeting[1]),
+          $('<td>').text(meeting[2]),
+          $('<td>').text(meeting[5]),
+          $('<td>').text(meeting[4]),
+          $('<td>').text(meeting[3]),
+          $('<td>').text(meeting[6]),
+          $('<td>').append(
+            $('<button>').text('Delete').click(function() {
+              $.ajax({
+                url: '/meeting/' + meeting[0],
+                type: 'DELETE',
+                success: function(result) {
+                  alert(result.message);
+                  location.reload();
+                }
+              });
+            }),
+            $('<button>').text('Update').click(function() {
+              const newDate = prompt('Enter new meeting date:', meeting[1]);
+              const newTime = prompt('Enter new meeting time:', meeting[2]);
+              const newLocation = prompt('Enter new meeting location:', meeting[3]);
+              if (newDate || newTime || newLocation) {
+                const updateData = {};
+                if (newDate) {
+                  updateData.meeting_date = newDate;
+                }
+                if (newTime) {
+                  updateData.meeting_time = newTime;
+                }
+                if (newLocation) {
+                  updateData.meeting_location = newLocation;
+                }
+                $.ajax({
+                  url: '/meeting/' + meeting[0],
+                  type: 'PUT',
+                  contentType: 'application/json',
+                  data: JSON.stringify(updateData),
+                  success: function(result) {
+                    alert(result.message);
+                    location.reload();
+                  }
+                });
+              }
+            })
+          )
+        ))
+      );
+  }
+  
+  $.getJSON('/meetingjson', function(data) {
+    updateTable(data);
+    console.log(data);
+  });
+  
+  setInterval(() => {
+    $.getJSON('/meetingjson', data => updateTable(data));
+  }, 5000);
+    });
+    </script>
+{% endblock %}

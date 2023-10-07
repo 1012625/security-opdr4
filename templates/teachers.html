@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="../static/style.css">
+  <h1>All Teachers</h1>
+  <table id="teacher-table">
+    <thead>
+        <tr>
+            <th>Teacher ID</th>
+            <th>Teacher first name</th>
+            <th>Teacher surname</th>
+            <th>Teacher email</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+
+  <script>
+    $(document).ready(function() {
+    function updateTable(data) {
+      $('#teacher-table tbody').empty().append(
+        data.map(teacher => $('<tr>').append(
+          $('<td>').text(teacher[0]),
+          $('<td>').text(teacher[1]),
+          $('<td>').text(teacher[2]),
+          $('<td>').text(teacher[3]),
+          $('<td>').append(
+            $('<button>').text('Delete').click(function() {
+              $.ajax({
+                url: '/teacher/' + teacher[0],
+                type: 'DELETE',
+                success: function(result) {
+                  alert(result.message);
+                  location.reload();
+                }
+              });
+            }),
+            $('<button>').text('Update').click(function() {
+              const newFirstname = prompt('Enter new teacher first name:', teacher[1]);
+              const newSurname = prompt('Enter new teacher surname:', teacher[2]);
+              const newEmail = prompt('Enter new teacher email:', teacher[3]);
+              if (newFirstname || newSurname || newEmail) {
+                const updateData = {};
+                if (newFirstname) {
+                  updateData.teacher_firstname = newFirstname;
+                }
+                if (newSurname) {
+                  updateData.teacher_surname = newSurname;
+                }
+                if (newEmail) {
+                  updateData.teacher_email = newEmail;
+                }
+                $.ajax({
+                  url: '/teacher/' + teacher[0],
+                  type: 'PUT',
+                  contentType: 'application/json',
+                  data: JSON.stringify(updateData),
+                  success: function(result) {
+                    alert(result.message);
+                    location.reload();
+                  }
+                });
+              }
+            })
+          )
+        ))
+      );
+  }
+  
+  $.getJSON('/teacherjson', function(data) {
+    updateTable(data);
+    console.log(data);
+  });
+  
+  setInterval(() => {
+    $.getJSON('/teacherjson', data => updateTable(data));
+  }, 5000);
+    });
+    </script>
+{% endblock %}

@@ -1,0 +1,69 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/">ClosedAI</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+      {% if 'username' not in session %}
+        <li class="nav-item">
+          <a class="nav-link" href="/"></a>
+        </li>
+      {% elif 'username' in session and session['username'] == 'admin' %}
+        <li class="nav-item">
+          <a class="nav-link" href="/meetings">Meetings</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/teacher">Teachers</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/create-meeting">Create Meeting</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/create-teacher">Create Teacher</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/">Check in</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/overzichtspagina">aanwezigheid</a>
+        </li>
+      {% elif 'username' in session and session['username'] == 'student' %}
+        <li class="nav-item">
+          <a class="nav-link" href="/">check in</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/overzichtspagina">aanwezigheid</a>
+        </li>
+      {% else %}
+      <li class="nav-item">
+        <a class="nav-link" href="/meetings">Meetings</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/create-meeting">Create Meeting</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/">Check in</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/overzichtspagina">aanwezigheid</a>
+      </li>
+      {% endif %}
+      </div>
+      <ul class="navbar-nav pe-5">
+        {% if 'username' not in session %}
+        <li class="ps-1 pe-1 nav-item">
+          <a class="btn btn-danger" aria-current="page" href="/inlog">Login</a>
+        </li>
+        {% else %}
+        <li class="ps-1 pe-1 nav-item">
+          <a class="btn btn-danger" aria-current="page" href="/logout">Logout</a>
+        </li>
+        {% endif %}
+        </ul>
+    </div>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  

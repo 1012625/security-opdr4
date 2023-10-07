@@ -1,0 +1,37 @@
+{% extends "layout.html" %} {% block content %}
+<link rel="stylesheet" href="../static/style.css" />
+<h1>Create Meeting</h1>
+{% if message %}
+<p class="message">{{ message }}</p>
+{% endif %}
+<form method="post">
+  <label for="meeting_date">Date of meeting</label>
+  <input type="date" name="meeting_date" required />
+  <br />
+  <label for="meeting_starttime">Start time of meeting</label>
+  <input type="time" name="meeting_starttime" required />
+  <br />
+  <label for="meeting_endtime">End time of meeting</label>
+  <input type="time" name="meeting_endtime" required />
+  <br />
+  <label for="meeting_subject">Subject:</label>
+  <select id="meeting_subject" name="meeting_subject">
+    <option value="1">Engels</option>
+    <option value="2">Nederlands</option>
+    <option value="3">Werkplaats</option>
+    <option value="4">Databases</option>
+  </select>
+  <br />
+  <label for="meeting_location">Location:</label>
+  <select id="meeting_location" name="meeting_location">
+    <option value="Posthumalaan">Posthumalaan</option>
+    <option value="Wijnhaven">Wijnhaven</option>
+    <option value="Museumpark">Museumpark</option>
+  </select>
+  <br />
+  <label for="meeting_class"> Class CH </label>
+  <input type="text" name="meeting_class" required />
+  <br />
+  <button type="submit">Create</button>
+</form>
+{% endblock %}

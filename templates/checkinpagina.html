@@ -1,0 +1,50 @@
+{% extends "layout.html" %} {% block content %}
+<link rel="stylesheet" href="../static/style.css" />
+<h1>Check-in</h1>
+<div id="result">
+  <form id="checkin-form">
+    <label for="student-select">selecteer je studentnummer:</label>
+    <select id="student-select" name="student-id">
+      {% for student in students %}
+      <option value="{{ student[0] }}">{{ student[0] }}</option>
+      {% endfor %}
+    </select>
+    <br />
+    <input type="submit" value="Check In" />
+  </form>
+</div>
+<script>
+  $(document).ready(function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const meetingid = urlParams.get("meetingid");
+    console.log(meetingid);
+    var checkinForm = $("#checkin-form");
+    var resultDiv = $("#result");
+
+    checkinForm.submit(function (e) {
+      e.preventDefault();
+
+      var studentId = $("#student-select").val();
+      var classInput = $("#class-input").val();
+
+      $.ajax({
+        url: "/checkin",
+        type: "POST",
+        data: {
+          "student-id": studentId,
+          "meeting-id": meetingid,
+        },
+        dataType: "json",
+        success: function (response) {
+          if (response.message === "Checked in") {
+            checkinForm.hide();
+            resultDiv.html("Succesfully checked in");
+          } else {
+            alert(response.message);
+          }
+        },
+      });
+    });
+  });
+</script>
+{% endblock %}
