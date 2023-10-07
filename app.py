@@ -1,5 +1,7 @@
 from flask import Flask, render_template, jsonify, session, flash, request, redirect
 import sqlite3
+import bcrypt
+
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key'
@@ -61,17 +63,30 @@ def login(username, password):
     conn = sqlite3.connect("databases/aanwezigheid.db")
     c = conn.cursor()
 
-    query = "SELECT * FROM user WHERE username=? AND password=?"
-    c.execute(query, (username, password))
-    row = c.fetchone()
+    query = "SELECT * FROM user WHERE username=?"
+    c.execute(query, (username,))
+    user = c.fetchone()
 
     conn.close()
 
-    if row:
+    if user and bcrypt.checkpw(password.encode('utf-8'), user[2].encode('utf-8')):
         return True
     else:
         flash('Invalid username or password')
         return False
+
+def register(username, password):
+    conn = sqlite3.connect("databases/aanwezigheid.db")
+    c = conn.cursor()
+
+    # Hash the password before inserting it into the database
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
+    query = "INSERT INTO user (username, password) VALUES (?, ?)"
+    c.execute(query, (username, hashed_password))
+    conn.commit()
+    conn.close()
+
 
 @app.route('/inlog', methods=['GET', 'POST'])
 def login_page():
